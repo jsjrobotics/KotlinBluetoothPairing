@@ -1,20 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <TextView
-      android:id="@+id/no_devices"
+  <Button
+      android:id="@+id/startDiscovery"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="No Devices"
+      android:layout_centerHorizontal="true"
+      android:text="@string/start_search_devices"/>
+
+  <Button
+      android:id="@+id/makeDiscoverable"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:text="@string/make_discoverable"
+      android:layout_below="@id/startDiscovery"/>
+
+  <TextView
+      android:id="@+id/no_devices"
+      android:layout_below="@id/makeDiscoverable"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/no_devices"
       />
   <android.support.v7.widget.RecyclerView
       android:id="@+id/device_list"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      android:layout_below="@id/makeDiscoverable"
       />
-</FrameLayout>
+</RelativeLayout>

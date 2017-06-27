@@ -5,4 +5,9 @@
   <string name="select_station">Select Station</string>
     <string name="unsupported_device_no_bluetooth">UNSUPPORTED DEVICE, NO BLUETOOTH</string>
     <string name="must_enable">Must Enable Bluetooth</string>
+    <string name="start_search_devices">Search for Devices</string>
+  <string name="no_devices">No Devices</string>
+    <string name="stop_discovery">Stop Search for Devices</string>
+  <string name="make_discoverable">Make Discoverable</string>
+  <string name="stop_make_discoverable">Stop Discoverability</string>
 </resources>

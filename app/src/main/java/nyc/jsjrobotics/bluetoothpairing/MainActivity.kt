@@ -1,8 +1,7 @@
 package nyc.jsjrobotics.bluetoothpairing
 
 import android.app.Activity
-import android.arch.lifecycle.LifecycleActivity
-import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -12,20 +11,18 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
-import android.support.v7.app.AppCompatActivity
 import android.widget.FrameLayout
 import nyc.jsjrobotics.bluetoothpairing.pairedDevices.PairedDevices
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
 import android.content.IntentFilter
-
+import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
 
 
 class MainActivity : LifecycleActivity() {
 
     private var content: FrameLayout? = null
 
-    private val REQUEST_ENABLE_BT : Int = 892040292
+    private val REQUEST_ENABLE_BT : Int = 100
 
     // Return int value to listen for in activity result if intent is sent to start bluetooth
     fun sendBluetoothStartIntent(activity : Activity):Int {
@@ -99,6 +96,7 @@ class MainActivity : LifecycleActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             return
         }
+        bluetoothAdapter.cancelDiscovery()
 
         val navigation = findViewById(R.id.navigation) as BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
@@ -149,12 +147,5 @@ class MainActivity : LifecycleActivity() {
     private fun displayMustEnable() {
         setContentView(R.layout.must_enable)
     }
-}
-
-class ActionFoundReceiver(val lifecycleRegistry: LifecycleRegistry) : BroadcastReceiver(){
-    override fun onReceive(context: Context?, intent: Intent?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 }
 
