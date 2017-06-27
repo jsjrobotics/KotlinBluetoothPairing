@@ -3,4 +3,6 @@
   <string name="paired_devices">Paired Devices</string>
   <string name="select_speaker">Select Speaker</string>
   <string name="select_station">Select Station</string>
+    <string name="unsupported_device_no_bluetooth">UNSUPPORTED DEVICE, NO BLUETOOTH</string>
+    <string name="must_enable">Must Enable Bluetooth</string>
 </resources>
