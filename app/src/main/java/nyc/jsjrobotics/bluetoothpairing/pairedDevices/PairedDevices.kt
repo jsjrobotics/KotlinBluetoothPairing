@@ -3,8 +3,6 @@ package nyc.jsjrobotics.bluetoothpairing.pairedDevices
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import android.os.Build
-import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 import android.content.Intent
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
 
@@ -18,8 +16,11 @@ class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
     private val subscriptions: SubscriptionsManager = SubscriptionsManager()
 
 
+    lateinit private var  discoverableReceiver: ActionFoundReceiver
+
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
+        discoverableReceiver = ActionFoundReceiver(lifecycle);
         bluetoothAdapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         presenter = PairedDevicesPresenter(bluetoothAdapter, lifecycle);
     }
@@ -33,13 +34,12 @@ class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
     override fun onStart() {
         super.onStart()
         subscriptions.add(presenter.onMakeDiscoverable().subscribe(this::handleMakeDiscoverable))
+        subscriptions.add(discoverableReceiver.onDiscoveryInProgress().subscribe({ isDiscovering -> presenter.showStopSearching(isDiscovering)}))
+
     }
 
     fun handleMakeDiscoverable(makeDiscoverable : Boolean) {
         if (makeDiscoverable) {
-            var discoverableReceiver = ActionFoundReceiver(lifecycle);
-            subscriptions.add(discoverableReceiver.onDiscoveryDisabled().subscribe({disabled -> presenter.showStopDiscoverable(false)}))
-            discoverableReceiver.registerBroadcastReceiver(this, context)
             presenter.showStopDiscoverable(makeDiscoverable)
             val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 90)

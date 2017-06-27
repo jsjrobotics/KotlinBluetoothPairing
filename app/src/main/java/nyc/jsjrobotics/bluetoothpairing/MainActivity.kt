@@ -96,7 +96,9 @@ class MainActivity : LifecycleActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             return
         }
-        bluetoothAdapter.cancelDiscovery()
+        if (bluetoothAdapter.isDiscovering) {
+            bluetoothAdapter.cancelDiscovery()
+        }
 
         val navigation = findViewById(R.id.navigation) as BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)

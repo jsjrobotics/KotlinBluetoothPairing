@@ -23,7 +23,7 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     }
 
     fun handleRequestDiscovery(enableDiscovery : Boolean) {
-        view.showStopSearching(enableDiscovery)
+        showStopSearching(enableDiscovery)
         if (enableDiscovery) {
             log("Enabling Discovery")
             bluetoothAdapter.startDiscovery()
@@ -58,6 +58,10 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun unRegister(source : LifecycleOwner ) {
         subscriptions.clear()
+    }
+
+    fun showStopSearching(showStopSearching: Boolean) {
+        view.showStopSearching(showStopSearching)
     }
 }
 
