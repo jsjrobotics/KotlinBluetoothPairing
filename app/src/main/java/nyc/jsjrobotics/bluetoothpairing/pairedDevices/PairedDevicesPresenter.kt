@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.util.Log
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 
 class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
@@ -52,7 +53,13 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     fun init(source : LifecycleOwner, event : Lifecycle.Event) {
         pairedDevices = bluetoothAdapter.bondedDevices
         view.setDevices(pairedDevices)
-        subscriptions.add(view.clickStartDiscovery().subscribe(this::handleRequestDiscovery))
+        var clickStartDiscovery : Disposable = view.clickStartDiscovery().subscribe(this::handleRequestDiscovery)
+        subscriptions.add(clickStartDiscovery);
+
+    }
+
+    fun addDevice(device :BluetoothDevice) {
+        view.addDevice(device)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

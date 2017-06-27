@@ -13,4 +13,8 @@ class SubscriptionsManager {
         subscriptions.clear()
     }
 
+    fun addAll(toAdd: List<Disposable>) {
+        toAdd.forEach({add(it)})
+    }
+
 }

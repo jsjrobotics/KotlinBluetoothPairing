@@ -1,10 +1,12 @@
 package nyc.jsjrobotics.bluetoothpairing.pairedDevices
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
+import java.util.*
 
 
 class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
@@ -33,9 +35,24 @@ class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
 
     override fun onStart() {
         super.onStart()
-        subscriptions.add(presenter.onMakeDiscoverable().subscribe(this::handleMakeDiscoverable))
-        subscriptions.add(discoverableReceiver.onDiscoveryInProgress().subscribe({ isDiscovering -> presenter.showStopSearching(isDiscovering)}))
+        val makeDiscoverable = presenter.onMakeDiscoverable().subscribe(this::handleMakeDiscoverable)
+        val discoveryInProgress = discoverableReceiver.onDiscoveryInProgress().subscribe(this::discoveryStateChanged)
+        val deviceFound = discoverableReceiver.onDeviceFound().subscribe(this::deviceFound)
+        val subscriptionList = Arrays.asList(
+                makeDiscoverable,
+                discoveryInProgress,
+                deviceFound
+        )
+        subscriptions.addAll(subscriptionList)
 
+    }
+
+    fun deviceFound(device : BluetoothDevice) {
+        presenter.addDevice(device)
+    }
+
+    fun discoveryStateChanged(isDiscovering: Boolean) {
+        presenter.showStopSearching(isDiscovering)
     }
 
     fun handleMakeDiscoverable(makeDiscoverable : Boolean) {

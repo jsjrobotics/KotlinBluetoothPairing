@@ -1,5 +1,6 @@
 package nyc.jsjrobotics.bluetoothpairing
 
+import android.Manifest
 import android.app.Activity
 import android.arch.lifecycle.*
 import android.bluetooth.BluetoothAdapter
@@ -16,11 +17,20 @@ import nyc.jsjrobotics.bluetoothpairing.pairedDevices.PairedDevices
 import android.bluetooth.BluetoothDevice
 import android.content.IntentFilter
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
+import android.Manifest.permission
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.content.pm.PackageManager
+import android.support.v4.content.ContextCompat
+
+
+
+
 
 
 class MainActivity : LifecycleActivity() {
 
     private var content: FrameLayout? = null
+    private val MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1
 
     private val REQUEST_ENABLE_BT : Int = 100
 
@@ -82,6 +92,7 @@ class MainActivity : LifecycleActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mReceiver = ActionFoundReceiver(lifecycle)
+        requestRuntimePermissions()
         content = findViewById(R.id.content) as FrameLayout
         var tempBluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         if (tempBluetoothAdapter == null) {
@@ -102,6 +113,27 @@ class MainActivity : LifecycleActivity() {
 
         val navigation = findViewById(R.id.navigation) as BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+    }
+
+    private fun requestRuntimePermissions() {
+        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf<String>(Manifest.permission.ACCESS_COARSE_LOCATION),
+                    MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION -> {
+                var permissionGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                if (!permissionGranted) {
+                    throw IllegalStateException("Must have permission")
+                }
+            }
+        }
     }
 
     private fun displayFragments(savedInstanceState: Bundle?) {

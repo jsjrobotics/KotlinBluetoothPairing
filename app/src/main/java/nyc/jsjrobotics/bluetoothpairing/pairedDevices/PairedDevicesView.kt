@@ -10,6 +10,7 @@ import android.widget.TextView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import nyc.jsjrobotics.bluetoothpairing.R
+import kotlin.collections.ArrayList
 
 class PairedDevicesView(inflater: android.view.LayoutInflater?, container: android.view.ViewGroup?, savedInstanceState: android.os.Bundle?) {
     private val onStartClick: PublishSubject<Boolean> = PublishSubject.create()
@@ -50,20 +51,43 @@ class PairedDevicesView(inflater: android.view.LayoutInflater?, container: andro
         return root
     }
 
+    private var deviceList: ArrayList<BluetoothDevice> = ArrayList()
+
     fun setDevices(pairedDevices: MutableSet<BluetoothDevice>?) {
-        val deviceList : List<BluetoothDevice> = pairedDevices.orEmpty().toList()
+        deviceList = ArrayList(pairedDevices.orEmpty().toList())
+        initDeviceList(deviceList)
+        updateDeviceListVisibility()
+
+    }
+
+    private fun updateDeviceListVisibility() {
         if (deviceList.isEmpty()) {
             deviceListView.visibility = View.GONE
             noDevicesMessage.visibility = View.VISIBLE
         }
         else {
-            val adapter: BluetoothDeviceAdapter = BluetoothDeviceAdapter(deviceList)
-            deviceListView.adapter = adapter;
-            deviceListView.layoutManager = LinearLayoutManager(root.context)
             deviceListView.visibility = View.VISIBLE
             noDevicesMessage.visibility = View.GONE
         }
+    }
 
+    private fun initDeviceList(devices: List<BluetoothDevice>) {
+        deviceList = ArrayList(devices);
+        val adapter: BluetoothDeviceAdapter = BluetoothDeviceAdapter(devices)
+        deviceListView.adapter = adapter;
+        deviceListView.layoutManager = LinearLayoutManager(root.context)
+    }
+
+    fun addDevice(device : BluetoothDevice) {
+        if (deviceList.isEmpty()) {
+            val singleItemList : ArrayList<BluetoothDevice> = ArrayList()
+            singleItemList.add(device)
+            initDeviceList(singleItemList)
+            updateDeviceListVisibility()
+        } else {
+            deviceList.add(device)
+            (deviceListView.adapter as BluetoothDeviceAdapter).updateDevices(deviceList)
+        }
     }
 
     fun showStopDiscoverable(showStopDiscoverable: Boolean) {

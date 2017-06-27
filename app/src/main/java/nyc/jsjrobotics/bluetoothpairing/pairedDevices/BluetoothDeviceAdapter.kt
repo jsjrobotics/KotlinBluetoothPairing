@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import nyc.jsjrobotics.bluetoothpairing.R
 
-class BluetoothDeviceAdapter(val pairedDevices: List<BluetoothDevice>) : RecyclerView.Adapter<BluetoothDeviceViewHolder>() {
+class BluetoothDeviceAdapter(var pairedDevices: List<BluetoothDevice>) : RecyclerView.Adapter<BluetoothDeviceViewHolder>() {
     override fun onBindViewHolder(holder: BluetoothDeviceViewHolder, position: Int) {
         holder.bind(pairedDevices[position])
     }
@@ -17,6 +17,11 @@ class BluetoothDeviceAdapter(val pairedDevices: List<BluetoothDevice>) : Recycle
 
     override fun getItemCount(): Int {
        return pairedDevices.size
+    }
+
+    fun updateDevices(deviceList: ArrayList<BluetoothDevice>) {
+        pairedDevices = deviceList
+        notifyDataSetChanged()
     }
 
 }
