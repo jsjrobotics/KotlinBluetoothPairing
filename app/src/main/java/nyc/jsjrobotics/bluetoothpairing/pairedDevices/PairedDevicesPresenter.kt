@@ -67,7 +67,7 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     }
 
     fun handleSelectedDevice(device : BluetoothDevice) {
-        System.out.print("Saw device selected")
+        device.createBond();
     }
 
     fun addDevice(device :BluetoothDevice) {

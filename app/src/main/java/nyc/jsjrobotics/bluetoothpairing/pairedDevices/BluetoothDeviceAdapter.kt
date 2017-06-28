@@ -18,7 +18,7 @@ class BluetoothDeviceAdapter : RecyclerView.Adapter<BluetoothDeviceViewHolder>()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BluetoothDeviceViewHolder {
-        return BluetoothDeviceViewHolder(parent, Consumer { onDeviceSelected::onNext })
+        return BluetoothDeviceViewHolder(parent, Consumer { device -> onDeviceSelected.onNext(device) })
     }
 
     override fun getItemCount(): Int {
