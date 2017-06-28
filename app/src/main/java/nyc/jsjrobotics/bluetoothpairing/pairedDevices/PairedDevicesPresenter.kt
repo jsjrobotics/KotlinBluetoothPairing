@@ -1,8 +1,10 @@
 package nyc.jsjrobotics.bluetoothpairing.pairedDevices
 
 import android.arch.lifecycle.*
+import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothHeadset
 import android.util.Log
 import android.widget.Toast
 import io.reactivex.Observable
@@ -10,6 +12,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 import java.util.*
+import nyc.jsjrobotics.bluetoothpairing.R
+import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
+
 
 class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
                              val lifecycle: LifecycleRegistry) : LifecycleObserver {
@@ -21,6 +26,7 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     }
 
     private val subscriptions: SubscriptionsManager = SubscriptionsManager()
+
 
     fun bindView(newView : PairedDevicesView) {
         view = newView;
@@ -67,10 +73,14 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     }
 
     fun handleSelectedDevice(device : BluetoothDevice) {
-        device.createBond();
+        if (device.bondState == BluetoothDevice.BOND_NONE) {
+            device.createBond()
+        } else {
+            view.showToast(R.string.already_bonded)
+        }
     }
 
-    fun addDevice(device :BluetoothDevice) {
+    fun addDevice(device : BluetoothDevice) {
         view.addDevice(device)
     }
 

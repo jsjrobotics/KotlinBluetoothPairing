@@ -17,11 +17,10 @@ import nyc.jsjrobotics.bluetoothpairing.pairedDevices.PairedDevices
 import android.bluetooth.BluetoothDevice
 import android.content.IntentFilter
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
-import android.Manifest.permission
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.content.pm.PackageManager
 import android.support.v4.content.ContextCompat
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
+import nyc.jsjrobotics.bluetoothpairing.selectSpeaker.SelectSpeaker
 
 
 class MainActivity : LifecycleActivity() {
@@ -94,7 +93,7 @@ class MainActivity : LifecycleActivity() {
         mReceiver.registerLifecycle(lifecycle)
         requestRuntimePermissions()
         content = findViewById(R.id.content) as FrameLayout
-        var tempBluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        val tempBluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         if (tempBluetoothAdapter == null) {
             setContentView(R.layout.unsupported)
             return

@@ -1,12 +1,14 @@
 package nyc.jsjrobotics.bluetoothpairing.pairedDevices
 
 import android.bluetooth.BluetoothDevice
+import android.support.annotation.StringRes
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
@@ -118,6 +120,10 @@ class PairedDevicesView(inflater: android.view.LayoutInflater?, container: andro
         } else {
             startDiscovery.text = resources.getString(R.string.start_search_devices)
         }
+    }
+
+    fun showToast(@StringRes stringResource: Int) {
+        Toast.makeText(root.context, stringResource, Toast.LENGTH_LONG).show()
     }
 
 }
