@@ -10,7 +10,10 @@
   <string name="stop_discovery">Stop Search for Devices</string>
   <string name="make_discoverable">Make Discoverable</string>
   <string name="stop_make_discoverable">Stop Discoverability</string>
-  <string name="already_bonded">Already Bonded or Bonding</string>
+  <string name="already_bonded">Establishing Connection</string>
   <string name="connect_to_a2dp">Connect to A2DP</string>
   <string name="connect_to_headset">Connect to Headset</string>
+  <string name="bonding">Bonding</string>
+  <string name="unpair">Unpair</string>
+  <string name="pairing">Pairing</string>
 </resources>

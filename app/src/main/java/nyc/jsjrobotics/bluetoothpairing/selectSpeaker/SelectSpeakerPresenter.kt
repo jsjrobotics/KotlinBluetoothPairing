@@ -5,15 +5,20 @@ import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothHeadset
 import android.bluetooth.BluetoothProfile
+import android.media.AudioManager
 import android.view.View
 import io.reactivex.disposables.Disposable
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
 import nyc.jsjrobotics.bluetoothpairing.pairedDevices.SubscriptionsManager
 import java.util.*
+import android.content.Context.AUDIO_SERVICE
+
+
 
 
 class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
-                             val lifecycle: LifecycleRegistry) : LifecycleObserver{
+                             val lifecycle: LifecycleRegistry,
+                             val audioManager : AudioManager) : LifecycleObserver{
     private val serviceListener: ServiceListener
     private val subscriptions: SubscriptionsManager = SubscriptionsManager()
     lateinit private var view: SelectSpeakerView
@@ -58,10 +63,18 @@ class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
         bluetoothAdapter.getProfileProxy(view.context, serviceListener, BluetoothProfile.HEADSET)
     }
 
+    private val MY_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+
     fun handleHeadsetConnected(device : BluetoothHeadset) {
-        device.connectedDevices.forEach({d ->
-            view.debugMakeToast("Headset " + d.name + " -> audio enabled: " + device.isAudioConnected(d))
-        })
+        if (device.connectedDevices.isNotEmpty()) {
+            val connectHeadset = device.connectedDevices[0];
+            try {
+                var socket = connectHeadset.createInsecureRfcommSocketToServiceRecord(MY_UUID)
+                socket.connect()
+            } catch (e : Exception) {
+                view.debugMakeToast("Failed to connect on socket")
+            }
+        }
     }
 
     fun handleHeadsetDisconnected(device : BluetoothHeadset) {

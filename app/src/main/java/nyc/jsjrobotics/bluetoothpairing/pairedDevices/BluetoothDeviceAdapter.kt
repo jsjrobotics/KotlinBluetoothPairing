@@ -11,6 +11,8 @@ import nyc.jsjrobotics.bluetoothpairing.R
 
 class BluetoothDeviceAdapter : RecyclerView.Adapter<BluetoothDeviceViewHolder>() {
     private val onDeviceSelected : PublishSubject<BluetoothDevice> = PublishSubject.create()
+    private val onUnpairSelected : PublishSubject<BluetoothDevice> = PublishSubject.create()
+
     private val pairedDevices: ArrayList<BluetoothDevice> = ArrayList()
 
     override fun onBindViewHolder(holder: BluetoothDeviceViewHolder, position: Int) {
@@ -18,11 +20,17 @@ class BluetoothDeviceAdapter : RecyclerView.Adapter<BluetoothDeviceViewHolder>()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BluetoothDeviceViewHolder {
-        return BluetoothDeviceViewHolder(parent, Consumer { device -> onDeviceSelected.onNext(device) })
+        return BluetoothDeviceViewHolder(parent,
+                Consumer { device -> onDeviceSelected.onNext(device) },
+                Consumer {device -> onUnpairSelected.onNext(device)})
     }
 
     override fun getItemCount(): Int {
        return pairedDevices.size
+    }
+
+    fun onUnpairSelected() : Observable<BluetoothDevice> {
+        return onUnpairSelected
     }
 
     fun onDeviceSelected() : Observable<BluetoothDevice> {
@@ -30,13 +38,23 @@ class BluetoothDeviceAdapter : RecyclerView.Adapter<BluetoothDeviceViewHolder>()
     }
 
     fun addDevices(deviceList: List<BluetoothDevice>) {
-        pairedDevices.addAll(deviceList)
+        deviceList.filter { !pairedDevices.contains(it) }.forEach({pairedDevices.add(it)})
         notifyDataSetChanged()
     }
 
     fun addDevice(device : BluetoothDevice) {
+        if (pairedDevices.contains(device)) {
+            return
+        }
         pairedDevices.add(device)
         notifyDataSetChanged()
+    }
+
+    fun removeDevice(device: BluetoothDevice) {
+        if (pairedDevices.contains(device)) {
+            pairedDevices.remove(device)
+            notifyDataSetChanged()
+        }
     }
 
 }

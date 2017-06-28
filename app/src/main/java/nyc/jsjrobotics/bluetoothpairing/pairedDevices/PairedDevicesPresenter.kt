@@ -1,19 +1,15 @@
 package nyc.jsjrobotics.bluetoothpairing.pairedDevices
 
 import android.arch.lifecycle.*
-import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothHeadset
 import android.util.Log
-import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 import java.util.*
 import nyc.jsjrobotics.bluetoothpairing.R
-import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
+import nyc.jsjrobotics.bluetoothpairing.BluetoothUnpairFunction
 
 
 class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
@@ -64,20 +60,45 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
         view.setDevices(pairedDevices)
         val clickStartDiscovery : Disposable = view.clickStartDiscovery().subscribe(this::handleRequestDiscovery)
         val selectBluetoothDevice : Disposable = view.onDeviceSelected().subscribe(this::handleSelectedDevice)
+        val unpairBluetoothDevice : Disposable = view.onUnpairSelected().subscribe(this::handleUnpairDevice)
         val subscriptionList : List<Disposable> = Arrays.asList(
                 clickStartDiscovery,
-                selectBluetoothDevice
+                selectBluetoothDevice,
+                unpairBluetoothDevice
         )
         subscriptions.addAll(subscriptionList);
 
     }
 
+    private val TEMP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+    private val UUID_2 : UUID = UUID.fromString("0000111E-0000-1000-8000-00805F9B34FB")
+
+    fun handleUnpairDevice(device : BluetoothDevice) {
+        BluetoothUnpairFunction.unpairDevice(device)
+        view.removeDevice(device)
+    }
+
     fun handleSelectedDevice(device : BluetoothDevice) {
         if (device.bondState == BluetoothDevice.BOND_NONE) {
+            view.showToast(R.string.pairing)
             device.createBond()
-        } else {
+        } else if (device.bondState == BluetoothDevice.BOND_BONDED){
             view.showToast(R.string.already_bonded)
+            connectToDevice(device)
+        } else {
+            view.showToast(R.string.bonding)
         }
+    }
+
+    private fun connectToDevice(device: BluetoothDevice) {
+        try {
+            var socket = device.createInsecureRfcommSocketToServiceRecord(UUID_2)
+            socket.connect()
+        } catch (e : Exception) {
+            view.showToast("Failed to connect on socket")
+            return
+        }
+        view.showToast("Successfully connection")
     }
 
     fun addDevice(device : BluetoothDevice) {

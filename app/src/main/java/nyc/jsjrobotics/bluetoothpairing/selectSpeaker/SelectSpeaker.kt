@@ -17,13 +17,15 @@ class SelectSpeaker : DefaultFragment(){
     lateinit private var presenter: SelectSpeakerPresenter
     lateinit private var view : SelectSpeakerView
 
+    lateinit private var audioManager: AudioManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var audioManager = context.getSystemService (Context.AUDIO_SERVICE) as AudioManager;
+        audioManager = context.getSystemService (Context.AUDIO_SERVICE) as AudioManager;
         audioManager.startBluetoothSco()
 
         val bluetoothAdapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        presenter = SelectSpeakerPresenter(bluetoothAdapter, lifecycle)
+        presenter = SelectSpeakerPresenter(bluetoothAdapter, lifecycle, audioManager)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {

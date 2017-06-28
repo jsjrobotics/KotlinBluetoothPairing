@@ -83,6 +83,10 @@ class PairedDevicesView(inflater: android.view.LayoutInflater?, container: andro
         deviceListView.layoutManager = LinearLayoutManager(root.context)
     }
 
+    fun onUnpairSelected() : Observable<BluetoothDevice> {
+        return adapter.onUnpairSelected()
+    }
+
     fun onDeviceSelected() : Observable<BluetoothDevice> {
         return adapter.onDeviceSelected()
     }
@@ -124,6 +128,14 @@ class PairedDevicesView(inflater: android.view.LayoutInflater?, container: andro
 
     fun showToast(@StringRes stringResource: Int) {
         Toast.makeText(root.context, stringResource, Toast.LENGTH_LONG).show()
+    }
+
+    fun showToast(string: String) {
+        Toast.makeText(root.context, string, Toast.LENGTH_LONG).show()
+    }
+
+    fun removeDevice(device: BluetoothDevice) {
+        adapter.removeDevice(device)
     }
 
 }
