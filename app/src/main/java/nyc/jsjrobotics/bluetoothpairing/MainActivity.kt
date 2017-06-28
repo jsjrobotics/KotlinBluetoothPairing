@@ -21,10 +21,7 @@ import android.Manifest.permission
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.content.pm.PackageManager
 import android.support.v4.content.ContextCompat
-
-
-
-
+import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
 
 
 class MainActivity : LifecycleActivity() {
@@ -88,10 +85,13 @@ class MainActivity : LifecycleActivity() {
 
     lateinit private var bluetoothAdapter: BluetoothAdapter
 
+    lateinit private var mService: ServiceListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mReceiver = ActionFoundReceiver(lifecycle)
+        mReceiver = ActionFoundReceiver.instance.actionFoundReceiver
+        mReceiver.registerLifecycle(lifecycle)
         requestRuntimePermissions()
         content = findViewById(R.id.content) as FrameLayout
         var tempBluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter

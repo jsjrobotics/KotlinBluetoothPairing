@@ -10,6 +10,9 @@ class ServiceListener : BluetoothProfile.ServiceListener{
         updateBluetoothProfile(profile, null);
     }
 
+    object instance {
+        val serviceListener : ServiceListener = ServiceListener()
+    }
     private var headset: BluetoothHeadset? = null
     private var speaker: BluetoothA2dp? = null
 

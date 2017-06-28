@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import io.reactivex.Observable
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import nyc.jsjrobotics.bluetoothpairing.R
 import kotlin.collections.ArrayList
@@ -71,22 +72,31 @@ class PairedDevicesView(inflater: android.view.LayoutInflater?, container: andro
         }
     }
 
+    private val adapter: BluetoothDeviceAdapter = BluetoothDeviceAdapter()
+
     private fun initDeviceList(devices: List<BluetoothDevice>) {
         deviceList = ArrayList(devices);
-        val adapter: BluetoothDeviceAdapter = BluetoothDeviceAdapter(devices)
+        adapter.addDevices(devices)
         deviceListView.adapter = adapter;
         deviceListView.layoutManager = LinearLayoutManager(root.context)
     }
 
-    fun addDevice(device : BluetoothDevice) {
+    fun onDeviceSelected() : Observable<BluetoothDevice> {
+        return adapter.onDeviceSelected()
+    }
+
+    fun addDevice(newDevice: BluetoothDevice) {
         if (deviceList.isEmpty()) {
             val singleItemList : ArrayList<BluetoothDevice> = ArrayList()
-            singleItemList.add(device)
+            singleItemList.add(newDevice)
             initDeviceList(singleItemList)
             updateDeviceListVisibility()
         } else {
-            deviceList.add(device)
-            (deviceListView.adapter as BluetoothDeviceAdapter).updateDevices(deviceList)
+            val noDuplicateExists : Boolean = deviceList.filter { seenDevice -> seenDevice.address == newDevice.address }.isEmpty()
+            if (noDuplicateExists) {
+                deviceList.add(newDevice)
+                (deviceListView.adapter as BluetoothDeviceAdapter).addDevices(deviceList)
+            }
         }
     }
 

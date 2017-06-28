@@ -22,7 +22,8 @@ class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        discoverableReceiver = ActionFoundReceiver(lifecycle);
+        discoverableReceiver = ActionFoundReceiver.instance.actionFoundReceiver
+        discoverableReceiver.registerLifecycle(lifecycle)
         bluetoothAdapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         presenter = PairedDevicesPresenter(bluetoothAdapter, lifecycle);
     }

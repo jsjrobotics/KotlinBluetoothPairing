@@ -1,5 +1,6 @@
 package nyc.jsjrobotics.bluetoothpairing.bluetooth
 
+import android.app.Activity
 import android.arch.lifecycle.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -12,12 +13,17 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 
-class ActionFoundReceiver(val lifecycleRegistry: LifecycleRegistry) : BroadcastReceiver(), LifecycleObserver {
+class ActionFoundReceiver : BroadcastReceiver(), LifecycleObserver {
+
 
     private val discoveryInProgress: PublishSubject<Boolean> = PublishSubject.create()
     private val deviceFound : PublishSubject<BluetoothDevice> = PublishSubject.create()
 
-    init {
+    object instance {
+        val actionFoundReceiver : ActionFoundReceiver = ActionFoundReceiver()
+    }
+
+    fun registerLifecycle(lifecycleRegistry: LifecycleRegistry) {
         lifecycleRegistry.addObserver(this);
     }
 
@@ -53,6 +59,7 @@ class ActionFoundReceiver(val lifecycleRegistry: LifecycleRegistry) : BroadcastR
         filter.addAction(BluetoothDevice.ACTION_FOUND)
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         context.registerReceiver(this, filter)
     }
 
