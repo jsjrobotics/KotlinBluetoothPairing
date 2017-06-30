@@ -42,13 +42,13 @@ class MainActivity : LifecycleActivity() {
         val fragmentToShow : String;
         when (item.itemId) {
             R.id.navigation_home -> {
-                fragmentToShow = fragmentList[0].first;
+                fragmentToShow = fragmentList[0].first.title;
             }
             R.id.navigation_dashboard -> {
-                fragmentToShow = fragmentList[1].first;
+                fragmentToShow = fragmentList[1].first.title;
             }
             R.id.navigation_notifications -> {
-                fragmentToShow = fragmentList[2].first;
+                fragmentToShow = fragmentList[2].first.title;
             }
             else -> {
                 throw IllegalStateException("Unknown fragment to show");
@@ -71,20 +71,18 @@ class MainActivity : LifecycleActivity() {
         true
     }
 
-    private var fragmentList: List<Pair<String, () -> Fragment>> =  listOf(
-            Pair("PairedDevices",  { PairedDevices() }),
-            Pair("Select Speaker",  { SelectSpeaker() }),
-            Pair("Select Station", { SelectStation() })
+    private var fragmentList: List<Pair<FragmentId, () -> Fragment>> =  listOf(
+            Pair(FragmentId.PAIRED_DEVICES,  { PairedDevices() }),
+            Pair(FragmentId.SELECT_SPEAKER,  { SelectSpeaker() }),
+            Pair(FragmentId.SELECT_STATION, { SelectStation() })
     );
 
     private fun getTags() : List<String> {
-        return fragmentList.map { pair -> pair.first}
+        return fragmentList.map { pair -> pair.first.title}
     }
 
 
     lateinit private var bluetoothAdapter: BluetoothAdapter
-
-    lateinit private var mService: ServiceListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,11 +112,15 @@ class MainActivity : LifecycleActivity() {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
+    private fun grantedPermission(permission: String) : Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
     private fun requestRuntimePermissions() {
-        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+        val permissions = arrayOf<String>(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.MODIFY_AUDIO_SETTINGS)
+        var requestPermissions =  permissions.filter { !grantedPermission(it) }.isNotEmpty()
+        if (requestPermissions) {
             ActivityCompat.requestPermissions(this,
-                    arrayOf<String>(Manifest.permission.ACCESS_COARSE_LOCATION),
+                    permissions,
                     MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION)
         }
     }
@@ -139,7 +141,7 @@ class MainActivity : LifecycleActivity() {
         val transaction : FragmentTransaction = supportFragmentManager.beginTransaction();
         if (savedInstanceState == null) {
             fragmentList.forEachIndexed( { index, fragmentWithTag ->
-                val tag : String = fragmentWithTag.first
+                val tag : String = fragmentWithTag.first.title
                 val createFragment : FragmentSupplier = fragmentWithTag.second
                 val fragment : Fragment = createFragment.invoke();
                 transaction.add(R.id.content, fragment, tag);
@@ -180,5 +182,24 @@ class MainActivity : LifecycleActivity() {
     private fun displayMustEnable() {
         setContentView(R.layout.must_enable)
     }
+
+    fun setDeviceToConnectTo(bluetoothDevice: BluetoothDevice) {
+        var selectSpeaker = getFragmentWithId(FragmentId.SELECT_SPEAKER)
+        if (selectSpeaker != null && selectSpeaker is SelectSpeaker) {
+            (selectSpeaker as SelectSpeaker).setDeviceToConnectTo(bluetoothDevice)
+        }
+    }
+
+    fun getFragmentWithId(id : FragmentId) : Fragment? {
+        return supportFragmentManager.findFragmentByTag(id.title)
+    }
+}
+
+enum class FragmentId(val title : String ){
+    PAIRED_DEVICES("Paired Devices"),
+    SELECT_SPEAKER("Select Speaker"),
+    SELECT_STATION("Select Station"),
+
+
 }
 

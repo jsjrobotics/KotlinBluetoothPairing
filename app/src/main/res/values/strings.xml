@@ -16,4 +16,5 @@
   <string name="bonding">Bonding</string>
   <string name="unpair">Unpair</string>
   <string name="pairing">Pairing</string>
+    <string name="no_selected_device_to_connect">No selected device to connect</string>
 </resources>

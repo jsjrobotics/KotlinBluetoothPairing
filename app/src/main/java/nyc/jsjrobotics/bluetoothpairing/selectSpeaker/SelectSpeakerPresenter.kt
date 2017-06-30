@@ -1,19 +1,14 @@
 package nyc.jsjrobotics.bluetoothpairing.selectSpeaker
 
 import android.arch.lifecycle.*
-import android.bluetooth.BluetoothA2dp
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothHeadset
-import android.bluetooth.BluetoothProfile
+import android.bluetooth.*
 import android.media.AudioManager
 import android.view.View
 import io.reactivex.disposables.Disposable
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
 import nyc.jsjrobotics.bluetoothpairing.pairedDevices.SubscriptionsManager
 import java.util.*
-import android.content.Context.AUDIO_SERVICE
-
-
+import nyc.jsjrobotics.bluetoothpairing.connectHeadset
 
 
 class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
@@ -65,15 +60,16 @@ class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
 
     private val MY_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
-    fun handleHeadsetConnected(device : BluetoothHeadset) {
-        if (device.connectedDevices.isNotEmpty()) {
-            val connectHeadset = device.connectedDevices[0];
-            try {
-                var socket = connectHeadset.createInsecureRfcommSocketToServiceRecord(MY_UUID)
-                socket.connect()
-            } catch (e : Exception) {
-                view.debugMakeToast("Failed to connect on socket")
-            }
+    fun handleHeadsetConnected(headset: BluetoothHeadset) {
+        if (deviceToConnectTo != null) {
+            var connecting = deviceToConnectTo!!.connectHeadset(headset)
+            if (connecting) {
+                audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+                audioManager.setBluetoothScoOn(true)
+                audioManager.startBluetoothSco();
+            };
+        } else {
+            view.debugMakeToast("No Device Selected")
         }
     }
 
@@ -91,6 +87,13 @@ class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
 
     fun bindView(view: SelectSpeakerView) {
         this.view = view
+    }
+
+    private var deviceToConnectTo: BluetoothDevice? = null
+
+    fun setDeviceToConnectTo(bluetoothDevice: BluetoothDevice) {
+        deviceToConnectTo = bluetoothDevice
+        view.setDeviceToConnectTo(deviceToConnectTo)
     }
 
 }

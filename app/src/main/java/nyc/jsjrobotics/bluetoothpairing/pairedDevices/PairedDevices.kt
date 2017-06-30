@@ -5,6 +5,9 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import io.reactivex.functions.Consumer
+import nyc.jsjrobotics.bluetoothpairing.MainActivity
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ActionFoundReceiver
 import java.util.*
 
@@ -20,14 +23,20 @@ class PairedDevices : nyc.jsjrobotics.bluetoothpairing.DefaultFragment()  {
 
     lateinit private var  discoverableReceiver: ActionFoundReceiver
 
+    lateinit private var  audioManager: AudioManager
+
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         discoverableReceiver = ActionFoundReceiver.instance.actionFoundReceiver
         discoverableReceiver.registerLifecycle(lifecycle)
         bluetoothAdapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        presenter = PairedDevicesPresenter(bluetoothAdapter, lifecycle);
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        presenter = PairedDevicesPresenter(bluetoothAdapter, audioManager, lifecycle, Consumer{device -> setDeviceToConnectTo(device)});
     }
 
+    fun setDeviceToConnectTo(bluetoothDevice: BluetoothDevice) {
+        (activity as MainActivity).setDeviceToConnectTo(bluetoothDevice)
+    }
     override fun onCreateView(inflater: android.view.LayoutInflater?, container: android.view.ViewGroup?, savedInstanceState: android.os.Bundle?): android.view.View? {
         view = PairedDevicesView(inflater, container, savedInstanceState);
         presenter.bindView(view)

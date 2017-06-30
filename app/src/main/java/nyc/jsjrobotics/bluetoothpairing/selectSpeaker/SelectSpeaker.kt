@@ -1,5 +1,6 @@
 package nyc.jsjrobotics.bluetoothpairing.selectSpeaker
 
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.media.AudioManager
@@ -32,5 +33,9 @@ class SelectSpeaker : DefaultFragment(){
         view = SelectSpeakerView(inflater, container, savedInstanceState)
         presenter.bindView(view)
         return view.getRoot()
+    }
+
+    fun setDeviceToConnectTo(bluetoothDevice: BluetoothDevice) {
+        presenter.setDeviceToConnectTo(bluetoothDevice)
     }
 }

@@ -6,15 +6,30 @@ import android.bluetooth.BluetoothDevice
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 import java.util.*
+import android.content.ContentValues.TAG
+import android.media.AudioManager
+import android.os.ParcelUuid
+import io.reactivex.functions.Consumer
+import nyc.jsjrobotics.bluetoothpairing.*
+import nyc.jsjrobotics.bluetoothpairing.BuildConfig
 import nyc.jsjrobotics.bluetoothpairing.R
-import nyc.jsjrobotics.bluetoothpairing.BluetoothUnpairFunction
 
 
 class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
-                             val lifecycle: LifecycleRegistry) : LifecycleObserver {
+                             val audioManager: AudioManager,
+                             val lifecycle: LifecycleRegistry,
+                             val setSpeakerToConnectTo: Consumer<BluetoothDevice>) : LifecycleObserver {
     private var pairedDevices: MutableSet<BluetoothDevice>? = null;
+
+    // Values from https://android.googlesource.com/platform/hardware/libhardware/+/jb-mr0-release/include/hardware/audio.h
+    private val AUDIO_PARAM_HEADSET_NAME : String = "bt_headset_name"
+    private val AUDIO_PARAM_HEADSET_NREC = "bt_headset_nrec"
+    private val AUDIO_PARAM_HEADSET_WBS = "bt_wbs"
+
+    val Handsfree : ParcelUuid = ParcelUuid.fromString("0000111E-0000-1000-8000-00805F9B34FB")
+    val HSP : ParcelUuid = ParcelUuid.fromString("00001108-0000-1000-8000-00805F9B34FB")
+
     lateinit private var view: PairedDevicesView
 
     init {
@@ -61,6 +76,7 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
         val clickStartDiscovery : Disposable = view.clickStartDiscovery().subscribe(this::handleRequestDiscovery)
         val selectBluetoothDevice : Disposable = view.onDeviceSelected().subscribe(this::handleSelectedDevice)
         val unpairBluetoothDevice : Disposable = view.onUnpairSelected().subscribe(this::handleUnpairDevice)
+
         val subscriptionList : List<Disposable> = Arrays.asList(
                 clickStartDiscovery,
                 selectBluetoothDevice,
@@ -74,7 +90,7 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     private val UUID_2 : UUID = UUID.fromString("0000111E-0000-1000-8000-00805F9B34FB")
 
     fun handleUnpairDevice(device : BluetoothDevice) {
-        BluetoothUnpairFunction.unpairDevice(device)
+        device.unBond()
         view.removeDevice(device)
     }
 
@@ -83,22 +99,17 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
             view.showToast(R.string.pairing)
             device.createBond()
         } else if (device.bondState == BluetoothDevice.BOND_BONDED){
-            view.showToast(R.string.already_bonded)
-            connectToDevice(device)
+            view.showToast("Settting device as selected")
+            setSpeakerToConnectTo.accept(device)
         } else {
             view.showToast(R.string.bonding)
         }
     }
 
-    private fun connectToDevice(device: BluetoothDevice) {
-        try {
-            var socket = device.createInsecureRfcommSocketToServiceRecord(UUID_2)
-            socket.connect()
-        } catch (e : Exception) {
-            view.showToast("Failed to connect on socket")
-            return
-        }
-        view.showToast("Successfully connection")
+    // from com/android/bluetooth/hfp/HeadsetStateMachine.java
+    private fun setAudioParameters(device: BluetoothDevice) {
+        audioManager.setParameters(AUDIO_PARAM_HEADSET_NREC + "=on")
+        audioManager.setParameters(AUDIO_PARAM_HEADSET_NAME + "=" + device.name)
     }
 
     fun addDevice(device : BluetoothDevice) {
