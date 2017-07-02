@@ -3,6 +3,7 @@ package nyc.jsjrobotics.bluetoothpairing.selectSpeaker
 import android.arch.lifecycle.*
 import android.bluetooth.*
 import android.media.AudioManager
+import android.os.ParcelUuid
 import android.view.View
 import io.reactivex.disposables.Disposable
 import nyc.jsjrobotics.bluetoothpairing.bluetooth.ServiceListener
@@ -58,11 +59,24 @@ class SelectSpeakerPresenter(val bluetoothAdapter: BluetoothAdapter,
         bluetoothAdapter.getProfileProxy(view.context, serviceListener, BluetoothProfile.HEADSET)
     }
 
-    private val MY_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+
+    val Handsfree : UUID = UUID.fromString("0000111E-0000-1000-8000-00805F9B34FB")
+    val HSP : ParcelUuid = ParcelUuid.fromString("00001108-0000-1000-8000-00805F9B34FB")
 
     fun handleHeadsetConnected(headset: BluetoothHeadset) {
         if (deviceToConnectTo != null) {
             var connecting = deviceToConnectTo!!.connectHeadset(headset)
+            if (!connecting) {
+                var btSocket = deviceToConnectTo!!.createInsecureRfcommSocketToServiceRecord(Handsfree);
+                try {
+                    btSocket.connect()
+                    connecting = true;
+                } catch (e : Exception) {
+                    view.debugMakeToast("Failed to connect")
+                    return
+                }
+
+            }
             if (connecting) {
                 audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
                 audioManager.setBluetoothScoOn(true)

@@ -27,8 +27,6 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
     private val AUDIO_PARAM_HEADSET_NREC = "bt_headset_nrec"
     private val AUDIO_PARAM_HEADSET_WBS = "bt_wbs"
 
-    val Handsfree : ParcelUuid = ParcelUuid.fromString("0000111E-0000-1000-8000-00805F9B34FB")
-    val HSP : ParcelUuid = ParcelUuid.fromString("00001108-0000-1000-8000-00805F9B34FB")
 
     lateinit private var view: PairedDevicesView
 
@@ -85,9 +83,6 @@ class PairedDevicesPresenter(val bluetoothAdapter: BluetoothAdapter,
         subscriptions.addAll(subscriptionList);
 
     }
-
-    private val TEMP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-    private val UUID_2 : UUID = UUID.fromString("0000111E-0000-1000-8000-00805F9B34FB")
 
     fun handleUnpairDevice(device : BluetoothDevice) {
         device.unBond()
